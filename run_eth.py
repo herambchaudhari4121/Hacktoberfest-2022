@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+import os
 
 count = 0
 birds = ''
@@ -67,8 +68,17 @@ for i in range(12):
     while asks[count] != '[':
         count += 1
     m_str = asks[count + 2: count + 12]
-    arr_price_red.append("{:.3f}".format(float(m_str)))
-    count += 1
+    try:
+        arr_price_red.append("{:.3f}".format(float(m_str)))
+        count += 1
+    except ValueError:
+        print('Извините, у нас возникли неполадки, перезайдите позже. Вы пока можете продолжить работу с другой монетой')
+        print('Для продолжения работы нажмите 1, для выхода нажмите 0:')
+        error = int(input())
+        if error == 1:
+            os.system('start_programm.py')
+        elif error == 0:
+            exit()
 # print(arr_price_red)
 
 count = 0
@@ -90,19 +100,45 @@ for i in range(len(arr_price_green)):
 sum_asks = sum(arr_asks)
 
 # # -----------------------------------
-print('Таков стакан по валюте -', val)
-print('sum_bird',sum_bird)
-print('sum_asks',sum_asks)
+# print('Таков стакан по валюте -', val)
+# print('sum_bird',sum_bird)
+# print('sum_asks',sum_asks)
 print("------------------------------")
-#
-# url = "https://www.binance.com/api/v3/ticker/price?symbol=HOTETH"
-# price_old = 0
-# inc = 1
-#
-# for i in range(1, 100):
-#     response = requests.get(url)
-#     soup = str(BeautifulSoup(requests.get(url).text, "html.parser"))
-#     # print(soup[29:36])
-#     price = soup
-#     print(i, price)
-#     print("-------------------------------")
+
+url = "https://www.binance.com/api/v3/ticker/price?symbol=ETHUSDT"
+price_old = 0
+inc = 1
+
+response = requests.get(url)
+soup = str(BeautifulSoup(requests.get(url).text, "html.parser"))
+print('Текущий курс по монете -', soup[29:36])
+price = float(soup[29:38])
+
+print("-------------------------------")
+answer = int(input('Вы собираетесь покупать монеты или же хотите продать?\n1 - покупка, 2 - продажа,3 - получить совет, 4 - выход\n'))
+os.system('cls')
+print("Данная программа не покупает и не продает никакие валюты, а лишь просчитывает возможный курс после возможной транзакции.\nНаша организация ответственности за ущер и крах не несет. Спасибо, что выбираете 'SiBears New'!")
+c = price
+if answer == 1:
+    k = sum_bird
+    n = int(input("Введите ваш возможный баланс, на который вы хотите закупить монету Money\n"))
+    for i in range(10):
+        c = c * (1 - k / (k + c * n / 10)) + c
+        # print(i, c)
+    print("Курс изменится на такой", "{:.10f}".format(float(c)), 'после вашего возможного трейда')
+elif answer == 2:
+    k = sum_asks
+    n = int(input("Введите вашу возможную сумму на которую вы хотите продать монеты(монету) Money\n"))
+    for i in range(10):
+        c = (k / (k + c * n / 10)) * c
+        c1 = "{:.8f}".format(float(c))
+        print(i, c1)
+    print("Курс изменится на такой", c1, 'после вашего возможного трейда')
+elif answer == 3:
+    os.system('info.py')
+elif answer == 4:
+    exit()
+print('Хотите начать все сначала? Тогда нажмите 1, иначе любую другую клавишу')
+answer = int(input())
+if answer == 1:
+    os.system('start_programm.py')
